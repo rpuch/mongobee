@@ -9,8 +9,7 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.*;
 
 /**
  * @author lstolowski
@@ -39,7 +38,8 @@ public class ChangeServiceTest {
     List<Method> foundMethods = service.fetchChangeSets(MongobeeTestResource.class);
     
     // then
-    assertTrue(foundMethods != null && foundMethods.size() == 5);
+    assertNotNull(foundMethods);
+    assertEquals(4, foundMethods.size());
   }
 
   @Test
@@ -52,7 +52,8 @@ public class ChangeServiceTest {
     List<Method> foundMethods = service.fetchChangeSets(AnotherMongobeeTestResource.class);
 
     // then
-    assertTrue(foundMethods != null && foundMethods.size() == 6);
+    assertNotNull(foundMethods);
+    assertEquals(4, foundMethods.size());
   }
 
 

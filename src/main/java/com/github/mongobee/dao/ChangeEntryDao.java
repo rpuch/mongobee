@@ -4,6 +4,9 @@ import static org.springframework.util.StringUtils.hasText;
 
 import java.util.Date;
 
+import com.mongodb.ConnectionString;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +15,6 @@ import com.github.mongobee.changeset.ChangeEntry;
 import com.github.mongobee.exception.MongobeeConfigurationException;
 import com.github.mongobee.exception.MongobeeConnectionException;
 import com.github.mongobee.exception.MongobeeLockException;
-import com.mongodb.DB;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
@@ -26,7 +26,7 @@ public class ChangeEntryDao {
   private static final Logger logger = LoggerFactory.getLogger("Mongobee dao");
 
   private MongoDatabase mongoDatabase;
-  private DB db;  // only for Jongo driver compatibility - do not use in other contexts
+  private MongoDatabase db;  // only for Jongo driver compatibility - do not use in other contexts
   private MongoClient mongoClient;
   private ChangeEntryIndexDao indexDao;
   private String changelogCollectionName;
@@ -56,7 +56,7 @@ public class ChangeEntryDao {
    * @deprecated implemented only for Jongo driver compatibility and backward compatibility - do not use in other contexts
    * @return com.mongodb.DB
    */
-  public DB getDb() {
+  public MongoDatabase getDb() {
     return db;
   }
 
@@ -67,7 +67,7 @@ public class ChangeEntryDao {
 
       this.mongoClient = mongo;
 
-      db = mongo.getDB(dbName); // for Jongo driver and backward compatibility (constructor has required parameter Jongo(DB) )
+      db = mongo.getDatabase(dbName); // for Jongo driver and backward compatibility (constructor has required parameter Jongo(DB) )
       mongoDatabase = mongo.getDatabase(dbName);
 
       ensureChangeLogCollectionIndex(mongoDatabase.getCollection(changelogCollectionName));
@@ -76,11 +76,11 @@ public class ChangeEntryDao {
     }
   }
 
-  public MongoDatabase connectMongoDb(MongoClientURI mongoClientURI, String dbName)
+  public MongoDatabase connectMongoDb(ConnectionString connectionString, String dbName)
       throws MongobeeConfigurationException, MongobeeConnectionException {
 
-    final MongoClient mongoClient = new MongoClient(mongoClientURI);
-    final String database = (!hasText(dbName)) ? mongoClientURI.getDatabase() : dbName;
+    final MongoClient mongoClient = MongoClients.create(connectionString);
+    final String database = (!hasText(dbName)) ? connectionString.getDatabase() : dbName;
     return this.connectMongoDb(mongoClient, database);
   }
 
